@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Well-Separated Pair Decomposition (WSPD)</title>
+  
+  
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+
+<body data-spy="scroll" data-target=".navbar" data-offset="50">
+<!-- Navigation Bar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#pfNavBar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse" id="pfNavBar">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a href="#">TOP</a></li>
+          <li><a href="#DEFINITION">DEFINITION</a></li>
+          <li><a href="#POINT-REGIONQUADTREE">POINT-REGION QUADTREE</a></li>
+          <li><a href="#building">BUILDING THE sWSPD</a></li>
+          <li><a href="#Proof">PROOF OF CORRECTNESS</a></li>
+          <li><a href="#APPLICATIONS">APPLICATIONS</a></li>
+          <li><a href="#MOREAPPLICATIONS">FST</a></li>
+          <li><a href="#contact">CITED</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav> <!-- End of NavBar -->
+  <!-- Home/Welcome -->
+  <div class="container-fluid bg-w text-center" id="home">
+    <h1>QUICK OVERVIEW</h1>
+   <p> Paul B. Callahan and S. Rao Kosaraju devised the well-separated pair decomposition (WSPD). They showed that it can be used to solve a variety of distance problems. A WSPD is a partition of the (n choose 2) edges of the complete Euclidean graph into O(n) subsets. Each subset in this partition is represented by two subsets A and B of the point set S, such that:
+        <ol>
+        <li> All distances between points in A and points in B are approximately equal </li>
+        <li> All distances within the point set A are much smaller than distances between A and B </li>
+         <li> All distances within the point set B are much smaller than distances between A and B. </li>
+      </ol>
+        Thus, a WSPD can be regarded as a set of O(n) edges that approximates the dense complete Euclidean graph. 
+        <br>
+      </p>
+       <img src="blankintroimage.jpg" style="width:480px;height:270px;">
+      <p>
+        <br>
+        The WSPD can be used to obtain many optimal algorithms for solving problems such as: closest pair problem, the k-closest pairs problem, the all-nearest neighbors problem, and the approximate minimum spanning tree problem. On this site, we will mainly focus on the details of the WSPD and its application with reguards to constructing spanners. </p>
+  </div> <!-- End of Home -->
+  <!-- DEFINITION -->
+  <div class="container-fluid bg-b" id="DEFINITION">
+    <h1 class="text-center">DEFINITION</h1>
+     <p>A sWSPD for P is a partition of the (n choose 2) edges of the complete graph on P into a collection of m well-separated pairs. Given two point sets A and B and a constant  0 < s < 1, we say (A, B) is s-separated if: max{diam(A), diam(B)} ≤ s∗dist(A, B) where dist(A, B)= min(a,b) ∈A×B‖a − b‖.</p>
+       <center>  <img src="introimage1.jpg" style="width:480px;height:270px;"> </center>
+  </div> <!-- End of DEFINITION -->
+  <!-- BUILDING THE sWSPD FROM A QUADTREE -->
+  <div class="container-fluid bg-w" id="POINT-REGIONQUADTREE">
+    <h1 class="text-center">POINT-REGION QUADTREE</h1>
+    <p>
+          In the <b>Point-Region quadtree </b> (PR quadtree) each node either has exactly four children or is a leaf. The PR quadtree represents a collection of data points in two dimensions by decomposing the region containing the data points into four equal quadrants, subquadrants, and so on, until no leaf node contains more than a single point.
+        </p>
+        <center>
+        <img src="https://media.giphy.com/media/RJbjlHL49iLS7awjB2/giphy.gif">
+        <img src="https://media.giphy.com/media/h6l1soXTasLR3B2t1P/giphy.gif"> </center>
+        <br>
+        <p>
+          For the purpose of constructing sWSPD we use a <b>compressed PR quadtree</b> that can be constructed in <u><b>O(nlogn)</b></u>. 
+          <br><br>
+          A compressed PR quadtree is a quadtree that has two types of nodes: <b>compressed and uncompressed</b>. 
+          <ul>
+            <li><b>Compressed</b> nodes have a single child and represent the area of the quadrant around their child.</li>
+            <li><b>Uncompressed</b> nodes are either leaves or split the pointset in their square into two or more subsets.</li>
+          </ul>
+          Compressed trees have <b>linear size</b>.<br><br>
+          <u><b>Construction of a quadtree on a set of points P:</b></u><br><br>
+          Set k = |P|/10. Construct a disk D with a radius r such that D contains at least k points of the set P and<br> 
+          <center>r(opt)(P, k) ≤ r ≤ 2r(opt)(P, k).</center><br>
+          Let l = 2^(floor(log(r))) ≥ r/2. Compute a grid with the length of a side of each cell equal to l. 
+          Find a cell c with the maximum number of points inside of it.<br><br>
+          <center>P(in) = P ∩ c, P(out) = P \ c.</center><br>
+          <center>l ≥ r/2 ⇒ |P(in)| ≥ k/25 = |P|/250. </center><br>
+          <center>l ≤ 2 r(opt)(P,k) ⇒ |P(in)| ≤ 4|P|/5.</center> <br>
+          Recursive call on P(in) and P(out).<br><br>
+          <center> <img src="quadtree_build.jpg" style="width:480px;height:270px;"><br> </center>
+          In both trees create a node that corresponds to the cell c. In T(in), a result of a recursive call on P(in), it will ba a root node v(in). In T(out), a result of a recursive call on P(out), it will be a leaf node v(out). Hang the two nodes onto each other so that T(in) is a subtree of T(out): 
+          <ul>
+            <li>If the new node is redundant, then compress it. </li>
+            <li>Otherwise, if v(out) is a compressed node, compute a new compressed node (assume this can be done in O(1)).</li>
+          </ul>
+          ⇒ T(|P|) = O(|P|) + T(P(in)) + T(P(out)) ⇒ <u><b>O(|P|log|P|)</b></u>
+        </p>
+  </div><!-- End of BUILDING THE sWSPD FROM A QUADTREE -->
+  <!-- PROOF OF CORRECTNESS -->
+  <div class="container-fluid bg-b" id="building">
+    <h1 class="text-center">BUILDING THE sWSPD FROM A QUADTREE</h1>
+            <p> Given a PR quadtree T nodes u and v and given a desired amount of seperation s > 0, let P(u) denote the intersection beteween total set of points and the points within the PR quadtree square i.e the diameter of u. Simmilarly let P(v) denote the intersection beteween total set of points and the points within the PR quadtree square i.e the diameter of v. We can find WSPD for the Tensor product (⊗) of P(u) ⊗ P(v) using the algorithm below.
+        <br>
+        <center>
+          Δu = diameter of node u <br>
+            Δv = diameter of node v <br>
+            ▢u = set of leaves in node u <br>
+            ▢v = set of leaves in node v <br>
+            F = created s-WSPD <br>
+        </center>
+            First call of the function is: WSPD(root, root, T, s)</p>
+
+      <pre>
+  WSPD(u, v, T, s)
+            {
+              if(∆u = 0 or ∆v = 0)
+                return 0;
+              else if(P(u) and P(v) is s-well separated) 
+                return {{u, v}};
+              else if ∆u < ∆v
+                swap(u, v)
+              else if ∆u ≤ sd(▢u,▢v)
+                F = F ∪{(u,v)}
+              else
+                for each child w of u 
+                  WSPD(w, v, T, s)
+            }
+</pre>
+  </div> <!-- End of PROOF OF CORRECTNESS -->
+  <!-- PROOF OF CORRECTNESS -->
+  <div class="container-fluid bg-w" id="Proof">
+    <h1 class="text-center">PROOF OF CORRECTNESS</h1>
+     <p>To prove our the correctness of the algorithm above, we apply 2 major concepts: a lemma and the packing argument (explained below). Using these key concepts, we show that the build time for a WSPD in 2D is O(nlog(n) + n/(s^2)). </p>
+       <u> <h3> Lemma </h3> </u>
+       <p> <u> <center>If (P(u),P(v)) ∈ P max{Δu, Δv} ≤ min{Δparent(u), Δparent(v)} </u> (using the previously defined symbols)</center>
+        <br>
+        In order to get to nodes u and v we needed to go thought their previous nodes which are their parents. This implies that the parent(v) is not well seperated with u. 
+        </p>
+        <center> <img src="https://media.giphy.com/media/Q7RqxEne9nk3eMi0dO/giphy.gif"> </center>
+       <p>
+         We know that no node can ever split apart more than s^2 times because we are in a 2D space. Hence, we can just look at each leaf node and how many times each parent directly above it was split. Looking at parent(u) we can observe the following:
+         <br>
+         <ul>
+         <li>In order for the parent(v) to have been split into v, ∆u < diameter(parent(v)).</li>
+         <li>In order for parent(u) to have split into u, parent(u) > parent(v). </li>
+
+       </ul>
+                  <center> <img src="wspdLemma.jpg" style="width:395.5px;height:262px;"> <br> </center>
+                  <br>
+       Thus, <b> ∆u < diam(parent(v)) < diam(parent(u))</b>.
+    
+       </p>
+       <u><h3> Packing Argument</h3></u>
+        <p>Algorithm also uses a packing argument to divide up the nodes of the quadtree into s-WSPD. The number of circles of size Δ that are at k away from a given point is O(k^2/Δ^2) or in our case O(1/s^2)</p>
+        <p> A circle packing is an arrangement of circles inside a given boundary such that no two overlap and some (or all) of them are mutually tangent. The generalization to spheres is called a sphere packing. Tessellations of regular polygons correspond to particular circle packings (Williams 1979, pp. 35-41). There is a well-developed theory of circle packing in the context of discrete conformal mapping (Stephenson) (Wolfram). </p>
+        <center><img src="http://mathworld.wolfram.com/images/eps-gif/CircleTriplets_1000.gif"> </center>
+         <center><a href="http://lramrz.com/2017/01/circle-packing-in-processing/" target="_blank" class="btn btn-default btn-lg"> For more cool visualizations of circle packing click here!</a> </center>
+        <p> <br>
+        Using these two concepts we have shown that total runtime of <b>O(nlog(n) + n/(s^2))</b>.
+        </p>
+
+
+
+  </div> <!-- End of PROOF OF CORRECTNESS -->
+    <!-- APPLICATIONS -->
+  <div class="container-fluid bg-b" id="APPLICATIONS">
+    <h1 class="text-center">APPLICATION OF sWSPD ON SPANNERS</h1>
+      <p> A spanner is a small-size graph such that the shortest path distance between any two points is roughly their Euclidean distance.<br><br>
+        <b>Definition.</b> A graph G = (S, E) is a ε-spanner if <br> 
+        <center>∀p,q ∈ S, dG(p,q) ≤ (1+ε)∥p−q∥.</center><br> 
+        <b>Theorem.</b><br> 
+        ∀s>0, in two dimensional space an s-spanner on S of size O(n) can be constructed in O(nlogn + n/(s^2)) time. <br>
+        <b>Proof.</b><br>
+        Set δ = s/16. Construct δ-WSPD F for S. For each pair (Ai,Bi) ∈ F, choose (pi,qi) ∈ Ai×Bi.
+        Let E = {(pi, qi) | 1 ≤ i ≤ |F|}. We use induction on the (n choose 2) distances to show that G = (S, E) is an s-spanner.</p>
+        <center> <img src="spanner_diagram.jpg" style="width:480px;height:270px;"> </center>
+        <p> <center> dG(p, q) = dG(p, pi) + ∥pi, qi∥ + dG(q, qi)</center><br>
+        By the property of δ-WSPD,<br>
+        <center> ∥p−pi∥ ≤ δ∥pi − qi∥. </center><br>
+        By the inductive hypothesis,<br>
+        <center>dG(p,pi)≤(1+s)∥p−pi∥≤(1+s)δ∥pi−qi∥</center><br>
+        Similarly, (1+s)∥q−qi∥≤(1+s)δ∥pi−qi∥. By triangle inequality,
+        <br><br>
+        <center>∥pi−qi∥ ≤ ∥p−q∥ + ∥p−pi∥ + ∥q−qi∥ ≤ ∥p−q∥ + 2δ∥p−q∥ = (1+2s)∥p−q∥</center><br>
+        Since δ ≤ s/16 ,it can be argued that ∥p−pi∥ < ∥p−q∥. Therefore 
+        <br><br>
+        <center>dG(p, q) ≤ dG(p, pi) + dG(q, qi) + ∥pi − qi∥</center><br>
+        <center> ≤ 2(1+s)δ∥pi − qi∥ + ∥pi − qi∥ </center><br>
+        <center>≤ (1+2(1+s)δ)(1+2δ)∥p − q∥ </center><br>
+        <center>dG(p, q) ≤ (1 + s) ∥p − q∥</center><br>
+        <center>Q.E.D.</center></p>
+      <h3>Other Applications of WSPD</h3>
+      <ul>
+        <li>Closest pair problem: given n points in metric space, find a pair of points with the smallest distance between them. -- sWSPD allows to solve it in <u>O(nlog(n))</u>.</li><br>
+        <li>All nearest neighbors problem: given n data-points and find the nearest neighbor for every one of those N points. -- with sWSPD can be solved in <u>O(nlog(n))</u>.</li><br>
+</ul>
+  </div> <!-- End of APPLICATIONS -->
+  <!-- MORE APPLICATIONS -->
+  <div class="container-fluid bg-w" id="MOREAPPLICATIONS">
+    <h1 class="text-center">FAIR SPLIT TREES (FST)</h1>
+     <p><b>Fair Split Trees (FST)</b> are structurally the same as KD trees and share the same properties, i.e they are built with a set of axis splits along different axis. But invariants of the fair split trees are different:</p>
+      <ul>
+        <li>Instead of splitting along a different axis and cycling, we will always split along the longest axis</li>
+        <li>Instead of splitting at the median (cutting our point set into two sets with equal number of points in each), we split at the “middle” (½ way between upper and lower edges of the box that is bouding a given set of points).</li>
+      </ul>
+     <center> <img src="https://media.giphy.com/media/YktEKveukEMnafcy3z/giphy.gif"> </center>
+      <br>
+      <u>Construction of a Fair Split Tree on a set of points P:</u>
+      <p>
+</p>
+  </div> <!-- End of MORE APPLICATIONS -->
+  <!-- Works Cited -->
+  <div class="container-fluid bg-b text-center" id="contact">
+    <h1>WORKS CITED</h1>
+    <div class="row">
+      <a href="https://sites.cs.ucsb.edu/~suri/cs235/Rlist/wellSepPairDecom.pdf" target="_blank" class="btn btn-default btn-lg">Callahan & Kosaraju</a>
+      <a href="https://cs.stanford.edu/people/rexy/uploads/2/3/9/0/23903170/lec13.pdf" target="_blank" class="btn btn-default btn-lg">Agarwal</a>
+       <a href="https://pdfs.semanticscholar.org/e22e/dbc174c35ec996726a9e596e93e51ebd4bc9.pdf" target="_blank" class="btn btn-default btn-lg">Smid</a>
+    </div>
+    <div class="row">
+      <a href="http://mathworld.wolfram.com/CirclePacking.html" target="_blank" class="btn btn-default btn-lg">Wolfram</a>
+     <a href="http://www.ams.org/notices/200311/fea-stephenson.pdf" target="_blank" class="btn btn-default btn-lg">Stephenson</a>
+    </div>
+  </div><!-- End of Works CIted -->
+  <p class="text-center">Rebecca & Sofiia<p>
+</body>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+
+</body>
+
+</html>

@@ -211,9 +211,17 @@
       </ul>
      <center> <img src="https://media.giphy.com/media/YktEKveukEMnafcy3z/giphy.gif"> </center>
       <br>
-      <u>Construction of a Fair Split Tree on a set of points P:</u>
-      <p>
-</p>
+      <u>Construction of a Fair Split Tree on a set of points P:</u><br><br>
+      <ol>
+          <li>Construct a bounding box on the set of points P.</li>
+          <li>Find the longest axis of the box.</li>
+          <li>Find the median of the found axis and split the box into two parts along the median.</li>
+          <li>Recurse on the two new sets of points in the two new boxes. One of the set of points will be the left subtree, the other will be a right subtree.</li>
+      </ol>
+      <p>This algorithm takes <u>O(n^2)</u> time which is too slow for efficiently building WSPD.</p><br>
+      <p>To fix that Paul B. Callahan and S. Rao Kosaraju in their paper "A Decomposition of Multidimensional Point Sets with Applications to k-Nearest-Neighbors and n-Body Potential Fields" explain how to build it in <u><b>O(nlog(n))</b></u> time. The link to their paper is in the works cited page.</p>
+      
+
   </div> <!-- End of MORE APPLICATIONS -->
   <!-- Works Cited -->
   <div class="container-fluid bg-b text-center" id="contact">
